@@ -7,6 +7,7 @@ import morgan from "morgan";
 
 import connectDB from "./config/db.js";
 import foodRouter from "./routes/foodRoute.js";
+import userRouter from "./routes/userRoute.js";
 
 dotenv.config();
 
@@ -21,14 +22,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("API Working");
 });
 
-app.use("/api/food", foodRouter)
+app.use("/api/food", foodRouter);
+app.use("/images", express.static("uploads"));
+app.use("/api/user", userRouter);
 
 const port = process.env.PORT || 8080;
 

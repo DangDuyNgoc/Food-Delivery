@@ -6,6 +6,8 @@ export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
+  const url = "http://localhost:8080";
+  const [token, setToken] = useState("");
 
   const addToCart = (itemId) => {
     if (!cartItems[itemId]) {
@@ -21,24 +23,26 @@ const StoreContextProvider = (props) => {
 
   const getTotalCart = () => {
     let totalAmount = 0;
-    for(const item in cartItems) {
-      if(cartItems[item] > 0) {
+    for (const item in cartItems) {
+      if (cartItems[item] > 0) {
         let itemInfo = food_list.find((product) => product._id === item);
         totalAmount += itemInfo.price * cartItems[item];
       }
     }
     return totalAmount;
-  }
-  
+  };
+
   const contextValue = {
     food_list,
     cartItems,
     setCartItems,
     addToCart,
     removeCartItem,
-    getTotalCart
+    getTotalCart,
+    url,
+    token,
+    setToken,
   };
-
 
   useEffect(() => {
     console.log(cartItems);

@@ -1,4 +1,5 @@
 import foodModel from "../models/foodModel.js";
+import fs from "fs";
 
 const addFood = async (req, res) => {
   try {
@@ -35,4 +36,39 @@ const addFood = async (req, res) => {
   }
 };
 
-export { addFood };
+const listFood = async (req, res) => {
+  try {
+    const food = await foodModel.find({});
+    res.status(200).send({
+      success: true,
+      data: food,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Error in Listing",
+      error: error,
+    });
+  }
+};
+
+const removeFood = async (req, res) => {
+  try {
+    const food = await foodModel.findById(req.body.id);
+    fs.unlink(`uploads/${food.image}`, () => {});
+
+    await foodModel.findByIdAndDelete(req.body.id);
+    res.status(200).send({
+      success: true,
+      message: "Food Removed",
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Error In Remove Food",
+      error: error,
+    });
+  }
+};
+
+export { addFood, listFood, removeFood };
