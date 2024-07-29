@@ -3,12 +3,12 @@ import { useContext, useState } from "react";
 import { assets } from "../../assets/assets";
 import "./Login.css";
 import { StoreContext } from "../../context/StoreContext";
-import { axios } from "axios";
+import axios from "axios";
 
 const Login = ({ setShowLogin }) => {
   const { url, setToken } = useContext(StoreContext);
 
-  const [currentState, setCurrentState] = useState("Sign Up");
+  const [currentState, setCurrentState] = useState("Login");
 
   const [data, setData] = useState({
     name: "",
@@ -69,8 +69,22 @@ const Login = ({ setShowLogin }) => {
               required
             />
           )}
-          <input type="email" placeholder="Your email" required />
-          <input type="password" placeholder="Your password" required />
+          <input
+            name="email"
+            value={data.email}
+            type="email"
+            onChange={onChangeHandler}
+            placeholder="Your email"
+            required
+          />
+          <input
+            name="password"
+            value={data.password}
+            type="password"
+            onChange={onChangeHandler}
+            placeholder="Your password"
+            required
+          />
         </div>
         <button type="submit">
           {currentState === "Sign Up" ? "Create Account" : "Login"}
