@@ -1,20 +1,103 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import "./Order.css";
 import { StoreContext } from "../../context/StoreContext";
+import axios from "axios";
 
 const Order = () => {
-  const { getTotalCart } = useContext(StoreContext);
+  const { getTotalCart, token, food_list, cartItems, url } =
+    useContext(StoreContext);
+
+  const [data, setData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+
+  const onChangeHandler = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const placeOrder = async (e) => {
+    e.preventDefault();
+    let orderItems = [];
+
+    food_list.forEach((item) => {
+      if (cartItems[item._id] > 0) {
+        let itemInfo = { ...item, quantity: cartItems[item._id] };
+        orderItems.push(itemInfo);
+      }
+    });
+    console.log(orderItems);
+    let orderData = {
+      address: data,
+      items: orderItems,
+      amount: getTotalCart() + 2,
+    };
+
+    try {
+      let response = await axios.post(url + "/api/order/place", orderData, {
+        headers: { token },
+      });
+
+      if (response.data.success) {
+        const { session_url } = response.data;
+        window.location.replace(session_url);
+      } else {
+        console.error("Error:", response.data);
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("Server responded with an error:", error.response.data);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error in setting up request:", error.message);
+      }
+      console.error("Error config:", error.config);
+    }
+  };
 
   return (
-    <form className="place-order">
+    <form onSubmit={placeOrder} className="place-order">
       <div className="order-left">
         <p className="title">Delivery Information</p>
-        <div className="muli-fields">
-          <input type="text" placeholder="First Name" />
-          <input type="text" placeholder="Last Name" />
+        <div className="multi-fields">
+          <input
+            required
+            type="text"
+            name="firstName"
+            onChange={onChangeHandler}
+            value={data.firstName}
+            placeholder="First Name"
+          />
+          <input
+            required
+            type="text"
+            name="lastName"
+            onChange={onChangeHandler}
+            value={data.lastName}
+            placeholder="Last Name"
+          />
         </div>
-        <input type="email" placeholder="Email Address" />
-        <input type="number" placeholder="Phone" />
+        <input
+          required
+          type="email"
+          name="email"
+          onChange={onChangeHandler}
+          value={data.email}
+          placeholder="Email Address"
+        />
+        <input
+          required
+          type="number"
+          name="phone"
+          onChange={onChangeHandler}
+          value={data.phone}
+          placeholder="Phone"
+        />
       </div>
       <div className="order-right">
         <div className="cart-total">
@@ -22,7 +105,7 @@ const Order = () => {
           <div>
             <div className="cart-detail">
               <p>SubTotal</p>
-              <p>{getTotalCart() === 0 ? 0 : 2}</p>
+              <p>{getTotalCart() === 0 ? 0 : getTotalCart()}</p>
             </div>
             <hr />
             <div className="cart-detail">
@@ -35,7 +118,7 @@ const Order = () => {
               <p>{getTotalCart() === 0 ? 0 : getTotalCart() + 2}</p>
             </div>
           </div>
-          <button>PROCEED TO CHECKOUT</button>
+          <button type="submit">PROCEED TO CHECKOUT</button>
         </div>
       </div>
     </form>

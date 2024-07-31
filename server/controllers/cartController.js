@@ -2,7 +2,7 @@ import userModel from "../models/userModel.js";
 
 export const addToCart = async (req, res) => {
   try {
-    let userData = await userModel.findOne({ _id: req.body.userId });
+    let userData = await userModel.findById(req.body.userId);
     let cartData = await userData.cartData;
 
     if (!cartData[req.body.itemId]) {
@@ -26,6 +26,44 @@ export const addToCart = async (req, res) => {
   }
 };
 
-export const removeCart = async (req, res) => {};
+export const removeCart = async (req, res) => {
+  try {
+    let userData = await userModel.findById(req.body.userId);
+    let cartData = await userData.cartData;
 
-export const getCart = async (req, res) => {};
+    if (cartData[req.body.itemId] > 0) {
+      cartData[req.body.itemId] -= 1;
+    }
+
+    await userModel.findByIdAndUpdate(req.body.userId, { cartData });
+
+    res.status(500).send({
+      success: true,
+      message: "Removed From Cart",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in Server",
+    });
+  }
+};
+
+export const getCart = async (req, res) => {
+  try {
+    let userData = await userModel.findById(req.body.userId);
+    let cartData = await userData.cartData;
+
+    res.status(200).send({
+      success: true,
+      cartData: cartData,
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in Server",
+    })
+  }
+};
