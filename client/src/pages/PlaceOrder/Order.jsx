@@ -1,9 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./Order.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Order = () => {
+  const navigate = useNavigate();
   const { getTotalCart, token, food_list, cartItems, url } =
     useContext(StoreContext);
 
@@ -19,6 +21,14 @@ const Order = () => {
     const value = e.target.value;
     setData((prevData) => ({ ...prevData, [name]: value }));
   };
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/cart");
+    } else if (getTotalCart() === 0) {
+      navigate("/cart");
+    }
+  }, [token, getTotalCart, navigate]);
 
   const placeOrder = async (e) => {
     e.preventDefault();
@@ -49,14 +59,7 @@ const Order = () => {
         console.error("Error:", response.data);
       }
     } catch (error) {
-      if (error.response) {
-        console.error("Server responded with an error:", error.response.data);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-      } else {
-        console.error("Error in setting up request:", error.message);
-      }
-      console.error("Error config:", error.config);
+      console.error("Error:", error.response.data);
     }
   };
 

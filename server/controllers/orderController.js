@@ -59,3 +59,84 @@ export const placeOrder = async (req, res) => {
     });
   }
 };
+
+export const verifyOrder = async (req, res) => {
+  const { orderId, success } = req.body;
+  try {
+    if (success === "true") {
+      await orderModel.findByIdAndUpdate(orderId, { payment: true });
+
+      res.status(200).send({
+        success: true,
+        message: "Paid",
+      });
+    } else {
+      await orderModel.findByIdAndDelete(orderId);
+
+      res.status(201).send({
+        success: false,
+        message: "Not Paid",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error In Server",
+    });
+  }
+};
+
+// order for client
+export const userOrder = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ userId: req.body.userId });
+    res.status(200).send({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error In Server",
+    });
+  }
+};
+
+// order for admin
+export const listOrder = async (req, res) => {
+  try {
+    const orders = await orderModel.find({});
+    res.status(200).send({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error In Server",
+    });
+  }
+};
+
+// updating order status
+export const updateStatus = async (req, res) => {
+  try {
+    await orderModel.findByIdAndUpdate(req.body.orderId, {
+      status: req.body.status,
+    });
+
+    res.status(200).send({
+      success: true,
+      message: "Order Status Updated Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error In Server",
+    });
+  }
+};
