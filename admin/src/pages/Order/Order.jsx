@@ -44,23 +44,23 @@ const Order = ({ url }) => {
               <img src={assets.parcel_icon} alt="" />
               <div>
                 <p className="order-food">
-                  {order.items.map((item, index) => {
-                    if (index === order.items.length - 1) {
-                      return item.name + " x " + item.quantity;
+                  {item.items.map((i, index) => {
+                    if (index === item.items.length - 1) {
+                      return i.name + " x " + i.quantity;
                     } else {
-                      return item.name + " x " + item.quantity + ", ";
+                      return i.name + " x " + i.quantity + ", ";
                     }
                   })}
                 </p>
                 <p className="order-name">
-                  {order.address.firstName + " " + order.address.lastName}
+                  {item.address.firstName + " " + item.address.lastName}
                 </p>
-                <p className="order-phone">{order.address.phone}</p>
-                <p>Items: {order.items.length}</p>
-                <p>{order.amount}d</p>
+                <p className="order-phone">{item.address.phone}</p>
+                <p>Items: {item.items.length}</p>
+                <p>{item.amount}d</p>
                 <select
-                  onChange={(e) => statusHandler(e, order._id)}
-                  value={order.status}
+                  onChange={(e) => statusHandler(e, item._id)}
+                  value={item.status}
                 >
                   <option value="Food Processing">Food Processing</option>
                   <option value="Out for delivery">Out for delivery</option>

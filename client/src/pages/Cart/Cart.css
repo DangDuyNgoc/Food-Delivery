@@ -95,6 +95,18 @@
     border-radius: 4px;
 }
 
+.no-pro {
+    margin-bottom: 1.25rem;
+}
+
+.btn-buy {
+    font-weight: 500;
+    border-radius: 1.5rem;
+    padding: .625rem 1rem;
+    color: #fff;
+    background-color: #dc2626;
+}
+
 @media (max-with: 750px) {
     .cart-bottom {
         flex-direction: column-reverse;

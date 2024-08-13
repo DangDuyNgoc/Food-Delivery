@@ -48,7 +48,7 @@ const Login = ({ setShowLogin }) => {
   return (
     <div className="login">
       <form onSubmit={onLogin} className="login-container">
-        <div className="login-tile">
+        <div className="login-title">
           <h2>{currentState}</h2>
           <img
             src={assets.cross_icon}

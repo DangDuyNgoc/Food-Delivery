@@ -21,14 +21,14 @@
     animation: fadeIn 0.5s;
 }
 
-.login-tile {
+.login-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: black;
 }
 
-.login-input img {
+.login-title img {
     width: 16px;
     cursor: pointer;
 }

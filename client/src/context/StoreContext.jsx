@@ -42,7 +42,11 @@ const StoreContextProvider = (props) => {
     for (const item in cartItems) {
       if (cartItems[item] > 0) {
         let itemInfo = food_list.find((product) => product._id === item);
-        totalAmount += itemInfo.price * cartItems[item];
+        if (itemInfo) {
+          totalAmount += itemInfo.price * cartItems[item];
+        } else {
+          console.warn(`Item with id ${item} not found in food_list`);
+        }
       }
     }
     return totalAmount;
@@ -54,7 +58,11 @@ const StoreContextProvider = (props) => {
   };
 
   const loadCartData = async (token) => {
-    const response = await axios.post(url + "/api/cart/get", {}, {headers: {token}});
+    const response = await axios.post(
+      url + "/api/cart/get",
+      {},
+      { headers: { token } }
+    );
     setCartItems(response.data.cartData);
   };
 
@@ -69,6 +77,13 @@ const StoreContextProvider = (props) => {
     loadData();
   }, []);
 
+  const searchProducts = (keyword) => {
+    if (!keyword) return food_list;
+    return food_list.filter((item) =>
+      item.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+  };
+
   const contextValue = {
     food_list,
     cartItems,
@@ -79,6 +94,7 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    searchProducts,
   };
 
   useEffect(() => {

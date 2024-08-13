@@ -10,6 +10,7 @@ import Footer from "./components/Footer/Footer";
 import Login from "./components/Login/Login";
 import Verify from "./pages/Verify/Verify";
 import MyOrder from "./pages/Order/MyOrder";
+import SearchList from "./pages/SearchList/SearchList";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -24,6 +25,7 @@ function App() {
           <Route path="/order" element={<Order />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/myOrder" element={<MyOrder />} />
+          <Route path="/search" element={<SearchList />} />
         </Routes>
       </div>
       <Footer />
