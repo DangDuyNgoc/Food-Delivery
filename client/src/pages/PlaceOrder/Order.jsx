@@ -108,17 +108,17 @@ const Order = () => {
           <div>
             <div className="cart-detail">
               <p>SubTotal</p>
-              <p>{getTotalCart() === 0 ? 0 : getTotalCart()}</p>
+              <p>{getTotalCart() === 0 ? 0 : getTotalCart()}.000đ</p>
             </div>
             <hr />
             <div className="cart-detail">
               <p>Delivery Fee</p>
-              <p>{2}</p>
+              <p>2.000đ</p>
             </div>
             <hr />
             <div className="cart-detail">
               <p>Total</p>
-              <p>{getTotalCart() === 0 ? 0 : getTotalCart() + 2}</p>
+              <p>{getTotalCart() === 0 ? 0 : getTotalCart() + 2}.000đ</p>
             </div>
           </div>
           <button type="submit">PROCEED TO CHECKOUT</button>

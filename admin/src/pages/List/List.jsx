@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import "./List.css";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
-const List = ({url}) => {
-
+const List = ({ url }) => {
   const [list, setList] = useState([]);
   const fetchList = async () => {
     const response = await axios.get(`${url}/api/food/list`);
@@ -29,7 +29,7 @@ const List = ({url}) => {
 
   useEffect(() => {
     fetchList();
-  }, []);
+  }, [url]);
 
   return (
     <div className="list add flex-col">
@@ -48,10 +48,18 @@ const List = ({url}) => {
               <img src={`${url}/images/` + item.image} alt="" />
               <p>{item.name}</p>
               <p>{item.category}</p>
-              <p>{item.price}</p>
-              <p onClick={() => removeFood(item._id)} className="cursor">
-                X
-              </p>
+              <p>{item.price}.000đ</p>
+              <div className="action-product">
+                <button className="btn btn-update cursor">
+                  <Link to={`/update/${item._id}`}>Update</Link>
+                </button>
+                <button
+                  onClick={() => removeFood(item._id)}
+                  className="btn btn-delete cursor"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           );
         })}

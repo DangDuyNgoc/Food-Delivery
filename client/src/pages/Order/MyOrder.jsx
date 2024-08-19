@@ -23,6 +23,7 @@ const MyOrder = () => {
       fetchOrders();
     }
   }, [token]);
+
   return (
     <div className="my-order">
       <h2>My Orders</h2>
@@ -30,18 +31,22 @@ const MyOrder = () => {
         {data.map((order, index) => {
           return (
             <div key={index} className="order-container">
-              <img src={assets.parcel_icon} alt="" />
-              <p>
-                {order.items.map((item, index) => {
-                  if (index === order.items.length - 1) {
-                    return item.name + " x " + item.quantity;
-                  } else {
-                    return item.name + " x " + item.quantity + ", ";
-                  }
-                })}
+              {order.items.map((item, index) => (
+                <div key={index}>
+                  <img
+                    src={`${url}/images/${item.image}`}
+                    alt={item.name}
+                    className="item-image"
+                  />
+                  <p>
+                    {item.name} x {item.quantity}
+                  </p>
+                </div>
+              ))}
+              <p>Price: {order.amount}.000đ</p>
+              <p>Total Products:
+                <span> {order.items.length}</span>
               </p>
-              <p>{order.amount}.00 d</p>
-              <p> Items: {order.items.length}</p>
               <p>
                 <span>&#x25cf;</span>
                 <b>{order.status}</b>

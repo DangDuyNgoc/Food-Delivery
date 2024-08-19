@@ -1,5 +1,6 @@
 import foodModel from "../models/foodModel.js";
 import fs from "fs";
+import path from "path";
 
 const addFood = async (req, res) => {
   try {
@@ -19,7 +20,7 @@ const addFood = async (req, res) => {
       description: req.body.description,
       price: req.body.price,
       category: req.body.category,
-      image: image_filename,
+      image: image_filename, 
     });
 
     await food.save();
@@ -71,4 +72,73 @@ const removeFood = async (req, res) => {
   }
 };
 
-export { addFood, listFood, removeFood };
+const updateFood = async (req, res) => {
+  const { name, description, price, category } = req.body;
+
+  try {
+    const food = await foodModel.findById(req.body.id);
+
+    if (!food) {
+      res.status(201).send({
+        success: false,
+        message: "No food found",
+      });
+    }
+
+    food.name = name || food.name;
+    food.description = description || food.description;
+    food.price = price || food.price;
+    food.category = category || food.category;
+
+    if (req.file) {
+      if (food.image) {
+        const oldImage = path.join("uploads", food.image);
+        fs.unlink(oldImage, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      }
+
+      food.image = req.file.filename;
+    }
+
+    await food.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Updated Successfully",
+      products: food,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in Server",
+    });
+  }
+};
+
+const getSingleFood = async (req, res) => {
+  try {
+    const food = await foodModel.findById(req.params.id);
+
+    if (!food) {
+      return res.json({ success: false, message: "Food not found" });
+    }
+
+    res.status(200).send({
+      success: true,
+      food: food,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error In Server",
+      err: error,
+    });
+  }
+};
+
+export { addFood, listFood, removeFood, updateFood, getSingleFood };

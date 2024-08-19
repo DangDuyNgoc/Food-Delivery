@@ -21,6 +21,10 @@ a {
   margin: auto;
 }
 
+.cursor {
+  cursor: pointer;
+}
+
 @keyframes fadeIn {
   0% {
     opacity: 0;

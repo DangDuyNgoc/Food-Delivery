@@ -65,13 +65,13 @@ const Navbar = ({ setShowLogin }) => {
       <div className="navbar-right">
         <SearchInput />
         <div className="navbar-search-icon" onClick={handleUser}>
-        <img src={assets.basket_icon} alt="" />
+        <img src={assets.basket_icon} alt="" className="cursor" />
           <div className={getTotalCart() === 0 ? "" : "dot"}></div>
         </div>
         {!token ? (
           <button onClick={() => setShowLogin(true)}>sign in</button>
         ) : (
-          <div className="navbar-profile">
+          <div className="navbar-profile cursor">
             <img src={assets.profile_icon} alt="" />
             <ul className="nav-profile-dropdown">
               <li onClick={() => navigate("/myOrder")}>

@@ -24,7 +24,7 @@ export const placeOrder = async (req, res) => {
         product_data: {
           name: item.name,
         },
-        unit_amount: item.price * 100 * 80,
+        unit_amount: item.price * 100 *100,
       },
       quantity: item.quantity,
     }));
@@ -35,7 +35,7 @@ export const placeOrder = async (req, res) => {
         product_data: {
           name: "Delivery Charges",
         },
-        unit_amount: 2 * 100 * 80,
+        unit_amount: 2 * 100 *100,
       },
       quantity: 1,
     });
@@ -55,7 +55,7 @@ export const placeOrder = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error In Serve",
+      message: "Error In Server",
     });
   }
 };
