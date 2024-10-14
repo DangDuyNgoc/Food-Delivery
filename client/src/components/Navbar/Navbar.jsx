@@ -5,6 +5,7 @@ import { assets } from "../../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 import SearchInput from "../SearchInput/SearchInput";
+import toast from "react-hot-toast";
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("home");
@@ -14,6 +15,7 @@ const Navbar = ({ setShowLogin }) => {
   const navigate = useNavigate();
 
   const logout = () => {
+    toast.success("Logout Successfully")
     localStorage.removeItem("token");
     setToken("");
     navigate("/");

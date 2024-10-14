@@ -2,6 +2,7 @@
 import axios from "axios";
 import { createContext, useEffect } from "react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export const StoreContext = createContext(null);
 
@@ -10,8 +11,10 @@ const StoreContextProvider = (props) => {
   const url = "http://localhost:8080";
   const [token, setToken] = useState("");
   const [food_list, setFoodList] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const addToCart = async (itemId) => {
+    console.log(itemId);
     if (!cartItems[itemId]) {
       setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
     } else {
@@ -21,7 +24,12 @@ const StoreContextProvider = (props) => {
       await axios.post(
         url + "/api/cart/add",
         { itemId },
-        { headers: { token } }
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     }
   };
@@ -32,9 +40,15 @@ const StoreContextProvider = (props) => {
       await axios.post(
         url + "/api/cart/remove",
         { itemId },
-        { headers: { token } }
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     }
+    toast.success("Item has been removed.");
   };
 
   const getTotalCart = () => {
@@ -57,18 +71,37 @@ const StoreContextProvider = (props) => {
     setFoodList(response.data.data);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${url}/api/category/get-list-category`);
+      setCategories(response.data.categories || []);
+    } catch (error) {
+      console.error("Failed to fetch categories", error);
+    }
+  };
+
   const loadCartData = async (token) => {
-    const response = await axios.post(
-      url + "/api/cart/get",
-      {},
-      { headers: { token } }
-    );
-    setCartItems(response.data.cartData);
+    try {
+      const response = await axios.post(
+        url + "/api/cart/get",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setCartItems(response.data.cartData);
+    } catch (error) {
+      console.error("Error loading cart data", error);
+    }
   };
 
   useEffect(() => {
     async function loadData() {
       await fetchFoodList();
+      await fetchCategories();
       if (localStorage.getItem("token")) {
         setToken(localStorage.getItem("token"));
         await loadCartData(localStorage.getItem("token"));
@@ -86,6 +119,7 @@ const StoreContextProvider = (props) => {
 
   const contextValue = {
     food_list,
+    categories,
     cartItems,
     setCartItems,
     addToCart,
@@ -96,10 +130,6 @@ const StoreContextProvider = (props) => {
     setToken,
     searchProducts,
   };
-
-  useEffect(() => {
-    console.log(cartItems);
-  }, [cartItems]);
 
   return (
     <StoreContext.Provider value={contextValue}>

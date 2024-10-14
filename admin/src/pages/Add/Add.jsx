@@ -4,16 +4,36 @@ import { assets } from "./../../assets/assets";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-const Add = ({url}) => {
-
+const Add = ({ url }) => {
   const [image, setImage] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [data, setData] = useState({
     name: "",
     price: "",
     description: "",
-    category: "Salad",
+    category: "",
   });
+
+  const token = localStorage.getItem("token");
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${url}/api/category/get-list-category`
+        );
+        setCategories(response.data.categories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const onChangeHandler = (event) => {
     const name = event.target.name;
@@ -34,7 +54,12 @@ const Add = ({url}) => {
     formData.append("category", data.category);
     formData.append("image", image);
 
-    const response = await axios.post(`${url}/api/food/add`, formData);
+    const response = await axios.post(`${url}/api/food/add`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (response.data.success) {
       setData({
@@ -46,6 +71,7 @@ const Add = ({url}) => {
 
       setImage(false);
       toast.success(response.data.message);
+      navigate("/food");
     } else {
       toast.error(response.data.message);
     }
@@ -95,15 +121,16 @@ const Add = ({url}) => {
         <div className="add-cate-price">
           <div className="add-cate flex-col">
             <p>Product Category</p>
-            <select onChange={onChangeHandler} name="category">
-              <option value="Salad">Salad</option>
-              <option value="Rolls">Rolls</option>
-              <option value="Deserts">Deserts</option>
-              <option value="Sandwich">Sandwich</option>
-              <option value="Cake">Cake</option>
-              <option value="Pure Veg">Cake</option>
-              <option value="Pasta">Cake</option>
-              <option value="Noodles">Cake</option>
+            <select
+              onChange={onChangeHandler}
+              name="category"
+              value={data.category}
+            >
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
             </select>
           </div>
           <div className="add-price flex-col">

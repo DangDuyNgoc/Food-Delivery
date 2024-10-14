@@ -65,6 +65,19 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email) {
+    return res.status(201).send({
+      success: false,
+      message: "Please enter your email address",
+    });
+  }
+  if (!password) {
+    return res.status(201).send({
+      success: false,
+      message: "Please enter your password",
+    });
+  }
+
   try {
     // check user
     const user = await userModel.findOne({ email });
@@ -95,6 +108,29 @@ const loginUser = async (req, res) => {
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
+      error: error,
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      expires: new Date(0),
+    });
+
+    return res.status(200).send({
+      success: true,
+      message: "Logout Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in Category",
       error: error,
     });
   }

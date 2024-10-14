@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware.js";
 import {
   listOrder,
   placeOrder,
@@ -14,6 +14,6 @@ orderRoute.post("/place", authMiddleware, placeOrder);
 orderRoute.post("/verify", verifyOrder);
 orderRoute.post("/userOrder", authMiddleware, userOrder);
 orderRoute.get("/list", listOrder);
-orderRoute.post("/status", updateStatus);
+orderRoute.post("/status", authMiddleware, isAdmin, updateStatus);
 
 export default orderRoute;

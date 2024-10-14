@@ -4,10 +4,10 @@ import { assets } from "../../assets/assets";
 import "./Login.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 const Login = ({ setShowLogin }) => {
-  const { url, setToken } = useContext(StoreContext);
+  const { url, setToken, setUser } = useContext(StoreContext);
 
   const [currentState, setCurrentState] = useState("Login");
 
@@ -27,45 +27,29 @@ const Login = ({ setShowLogin }) => {
   };
 
   const onLogin = async (e) => {
-    try {
-      e.preventDefault();
+    e.preventDefault();
+    let newUrl = url;
+    if (currentState === "Login") {
+      newUrl += "/api/user/login";
+    } else {
+      newUrl += "/api/user/register";
+    }
 
-      if (currentState === "Sign Up" && !data.name) {
-        return toast.error("Please enter your name");
-      }
+    const response = await axios.post(newUrl, data);
 
-      if (!data.email) {
-        return toast.error("Please enter your email address");
-      }
-
-      if (!data.password) {
-        return toast.error("Password is required");
-      }
-
-      let newUrl = url;
-      if (currentState === "Login") {
-        newUrl += "/api/user/login";
-      } else {
-        newUrl += "/api/user/register";
-      }
-
-      const response = await axios.post(newUrl, data);
-
+    if (response.data.user?.role === 1) {
       if (response.data.success) {
         setToken(response.data.token);
-        toast.success(response.data?.message);
+        setUser(response.data.user);
+        toast.success(response.data.message);
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         setShowLogin(false);
       } else {
-        toast.error(response.data?.message);
+        alert(response.data.message);
       }
-
-      if (response && response.data.user.email === undefined) {
-        toast.error("Invalid Email");
-      }
-    } catch (error) {
-      console.log(error);
-      // toast.error("Something went wrong!");
+    } else {
+      toast.error("You are not authorized to access this page");
     }
   };
 
@@ -74,6 +58,13 @@ const Login = ({ setShowLogin }) => {
       <form onSubmit={onLogin} className="login-container">
         <div className="login-title">
           <h2>{currentState}</h2>
+          <button
+          type="button"
+          className="close-button" 
+          onClick={() => setShowLogin(false)}
+        >
+          X
+        </button>
           <img
             src={assets.cross_icon}
             alt=""
@@ -90,6 +81,7 @@ const Login = ({ setShowLogin }) => {
               onChange={onChangeHandler}
               value={data.name}
               placeholder="Your name"
+              required
             />
           )}
           <input
@@ -98,6 +90,7 @@ const Login = ({ setShowLogin }) => {
             type="email"
             onChange={onChangeHandler}
             placeholder="Your email"
+            required
           />
           <input
             name="password"
@@ -105,6 +98,7 @@ const Login = ({ setShowLogin }) => {
             type="password"
             onChange={onChangeHandler}
             placeholder="Your password"
+            required
           />
         </div>
         <button type="submit">

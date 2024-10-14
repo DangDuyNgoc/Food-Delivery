@@ -11,8 +11,6 @@ const addFood = async (req, res) => {
       });
     }
 
-    console.log("File received:", req.file); // Add logging to verify file upload
-
     let image_filename = req.file.filename;
 
     const food = new foodModel({

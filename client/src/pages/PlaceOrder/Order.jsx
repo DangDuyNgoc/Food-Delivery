@@ -3,6 +3,7 @@ import "./Order.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const Order = () => {
   const navigate = useNavigate();
@@ -40,7 +41,23 @@ const Order = () => {
         orderItems.push(itemInfo);
       }
     });
-    console.log(orderItems);
+   
+    if(!data.firstName) {
+      return toast.error("Please enter your first name");
+    }
+
+    if(!data.lastName) {
+      return toast.error("Please enter your last name");
+    }
+
+    if(!data.email) {
+      return toast.error("Please enter your email");
+    }
+
+    if(!data.phone) {
+      return toast.error("Please enter your phone");
+    }
+
     let orderData = {
       address: data,
       items: orderItems,
@@ -49,10 +66,11 @@ const Order = () => {
 
     try {
       let response = await axios.post(url + "/api/order/place", orderData, {
-        headers: { token },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.data.success) {
+        toast.success("Order Successfully");
         const { session_url } = response.data;
         window.location.replace(session_url);
       } else {
@@ -69,7 +87,6 @@ const Order = () => {
         <p className="title">Delivery Information</p>
         <div className="multi-fields">
           <input
-            required
             type="text"
             name="firstName"
             onChange={onChangeHandler}
@@ -77,7 +94,6 @@ const Order = () => {
             placeholder="First Name"
           />
           <input
-            required
             type="text"
             name="lastName"
             onChange={onChangeHandler}
@@ -86,7 +102,6 @@ const Order = () => {
           />
         </div>
         <input
-          required
           type="email"
           name="email"
           onChange={onChangeHandler}
@@ -94,7 +109,6 @@ const Order = () => {
           placeholder="Email Address"
         />
         <input
-          required
           type="number"
           name="phone"
           onChange={onChangeHandler}
@@ -113,12 +127,12 @@ const Order = () => {
             <hr />
             <div className="cart-detail">
               <p>Delivery Fee</p>
-              <p>2.000đ</p>
+              <p>12.000đ</p>
             </div>
             <hr />
             <div className="cart-detail">
               <p>Total</p>
-              <p>{getTotalCart() === 0 ? 0 : getTotalCart() + 2}.000đ</p>
+              <p>{getTotalCart() === 0 ? 0 : getTotalCart() + 12}.000đ</p>
             </div>
           </div>
           <button type="submit">PROCEED TO CHECKOUT</button>

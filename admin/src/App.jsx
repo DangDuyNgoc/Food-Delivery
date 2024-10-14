@@ -1,32 +1,67 @@
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
-import { Route, Routes } from "react-router-dom";
-import Add from "./pages/Add/Add";
 import Order from "./pages/Order/Order";
-import List from "./pages/List/List";
-import Update from './pages/Update/Update';
+import Update from "./pages/Update/Update";
+import Category from "./pages/Category/Category";
+import Food from "./pages/Add/Food";
+import Add from "./pages/Add/Add";
+import Login from "./components/Login/Login";
+import StoreContextProvider from "./context/StoreContext";
 
+import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
+
 
 const App = () => {
+  const [showLogin, setShowLogin] = useState(false);
   const url = "http://localhost:8080";
 
   return (
-    <div>
-      <ToastContainer />
-      <Navbar />
-      <hr />
-      <div className="app-content">
-        <Sidebar />
-        <Routes>
-          <Route path="/add" element={<Add url={url} />}></Route>
-          <Route path="/list" element={<List url={url} />}></Route>
-          <Route path="/order" element={<Order url={url} />}></Route>
-          <Route path="/update/:id" element={<Update url={url} />}></Route>
-        </Routes>
+    <StoreContextProvider>
+      <div>
+        <ToastContainer />
+        <Navbar setShowLogin={setShowLogin}/>
+        <hr />
+        {showLogin ? <Login setShowLogin={setShowLogin} /> : <></>}
+        <div className="app-content">
+          <Sidebar setShowLogin={setShowLogin} />
+          <Routes>
+            <Route
+              path="/food"
+              element={
+                <Food url={url} />
+              }
+            />
+            <Route
+              path="/add-food"
+              element={
+                <Add url={url} />
+              }
+            />
+            <Route
+              path="/category"
+              element={
+                <Category url={url} />
+              }
+            />
+            <Route
+              path="/order"
+              element={
+                <Order url={url} />
+              }
+            />
+            <Route
+              path="/update/:id"
+              element={
+                <Update url={url} />
+              }
+            />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </StoreContextProvider>
   );
 };
 

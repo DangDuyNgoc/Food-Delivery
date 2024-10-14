@@ -5,11 +5,11 @@ import userModel from "../models/userModel.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const placeOrder = async (req, res) => {
-  const frontend_url = "http://localhost:5173";
+  const frontend_url = process.env.FRONTEND_URL;
 
   try {
     const newOrder = new orderModel({
-      userId: req.body.userId,
+      userId: req.user._id,
       items: req.body.items,
       amount: req.body.amount,
       address: req.body.address,
@@ -24,7 +24,7 @@ export const placeOrder = async (req, res) => {
         product_data: {
           name: item.name,
         },
-        unit_amount: item.price * 100 *100,
+        unit_amount: item.price * 1000,
       },
       quantity: item.quantity,
     }));
@@ -35,7 +35,7 @@ export const placeOrder = async (req, res) => {
         product_data: {
           name: "Delivery Charges",
         },
-        unit_amount: 2 * 100 *100,
+        unit_amount: 12000,
       },
       quantity: 1,
     });
@@ -90,7 +90,7 @@ export const verifyOrder = async (req, res) => {
 // order for client
 export const userOrder = async (req, res) => {
   try {
-    const orders = await orderModel.find({ userId: req.body.userId });
+    const orders = await orderModel.find({ userId: req.user._id });
     res.status(200).send({
       success: true,
       data: orders,
@@ -124,6 +124,7 @@ export const listOrder = async (req, res) => {
 // updating order status
 export const updateStatus = async (req, res) => {
   try {
+    console.log("body", req.body);
     await orderModel.findByIdAndUpdate(req.body.orderId, {
       status: req.body.status,
     });

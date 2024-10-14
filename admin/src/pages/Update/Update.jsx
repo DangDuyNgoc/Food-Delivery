@@ -1,36 +1,49 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import "./Update.css";
-import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
-import { assets } from "./../../assets/assets";
+import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 const Update = ({ url }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
-  const [category, setCategory] = useState("");
-  const { id } = useParams();
-  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchFoodData = async () => {
+    const fetchFood = async () => {
       try {
-        console.log("Fetching food data for ID:", id);
         const { data } = await axios.get(`${url}/api/food/${id}`);
         setName(data.food.name);
         setDescription(data.food.description);
         setPrice(data.food.price);
-        setCategory(data.food.category);
-        setImagePreview(`${url}/images/${data.food.image}`)
+        setSelectedCategory(data.food.category);
+        setImagePreview(`${url}/images/${data.food.image}`);
       } catch (error) {
-        console.log("Failed to fetch food data", error);
+        console.error("Failed to fetch food:", error);
+        toast.error("Failed to fetch food details.");
       }
     };
-    fetchFoodData();
+
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${url}/api/category/get-list-category`
+        );
+        setCategories(response.data.categories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    fetchFood();
+    fetchCategories();
   }, [id, url]);
 
   const handleImageChange = (e) => {
@@ -38,7 +51,7 @@ const Update = ({ url }) => {
     setImage(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result); 
+      setImagePreview(reader.result);
     };
     if (file) {
       reader.readAsDataURL(file);
@@ -54,18 +67,19 @@ const Update = ({ url }) => {
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
-      formData.append("category", category);
+      formData.append("category", selectedCategory);
       if (image) {
         formData.append("image", image);
       }
 
       const { data } = await axios.put(`${url}/api/food/update`, formData, {
         headers: {
-          "Content-type": "multipart/form-data",
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
       if (data?.success) {
-        navigate("/list");
+        navigate("/food");
         toast.success(data?.message);
       } else {
         toast.error(data?.message);
@@ -77,82 +91,80 @@ const Update = ({ url }) => {
   };
 
   return (
-    <div className="update">
-      <form className="flex-col" onSubmit={handleSubmit}>
-        <div className="flex-col update-img">
-          <p>Upload Image</p>
-          <label htmlFor="image">
-            <img
-              alt=""
-              src={imagePreview}
-            />
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Update Food</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block mb-2">Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border border-gray-300 p-2 w-full"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2">Description:</label>
+          <textarea
+            name="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="border border-gray-300 p-2 w-full"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2">Price:</label>
+          <input
+            type="number"
+            name="price"
+            value={price}
+            onChange={(e) => setDescription(e.target.value)}
+            className="border border-gray-300 p-2 w-full"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block mb-2">Category:</label>
+          <select
+            name="category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="border border-gray-300 p-2 w-full"
+            required
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2" htmlFor="image">
+            Image:
+            <img alt="" src={imagePreview} />
           </label>
           <input
             type="file"
             id="image"
+            className="border border-gray-300 p-2 w-full"
             hidden
-            required
             onChange={handleImageChange}
           />
         </div>
-        <div className="update-product flex-col">
-          <p>Product Name</p>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Type here"
-            required
-          />
-        </div>
-
-        <div className="update-desc flex-col">
-          <p>Product Description</p>
-          <textarea
-            id="description"
-            name="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="6"
-            placeholder="Write here"
-          ></textarea>
-        </div>
-
-        <div className="update-cate-price">
-          <div className="update-cate flex-col">
-            <p>Product Category</p>
-            <select
-              name="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="Salad">Salad</option>
-              <option value="Rolls">Rolls</option>
-              <option value="Deserts">Deserts</option>
-              <option value="Sandwich">Sandwich</option>
-              <option value="Cake">Cake</option>
-              <option value="Pure Veg">Cake</option>
-              <option value="Pasta">Cake</option>
-              <option value="Noodles">Cake</option>
-            </select>
-          </div>
-          <div className="update-price flex-col">
-            <p>Product Price</p>
-            <input
-              type="number"
-              value={price}
-              name="price"
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="price"
-            />
-          </div>
-        </div>
-        <button type="submit" className="update-btn">
-          Update Product
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Update Food
         </button>
       </form>
+      <ToastContainer />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import Login from "./components/Login/Login";
 import Verify from "./pages/Verify/Verify";
 import MyOrder from "./pages/Order/MyOrder";
 import SearchList from "./pages/SearchList/SearchList";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -18,6 +19,7 @@ function App() {
     <>
       {showLogin ? <Login setShowLogin={setShowLogin} /> : <></>}
       <div className="app">
+        <Toaster />
         <Navbar setShowLogin={setShowLogin} />
         <Routes>
           <Route path="/" element={<Home />} />
