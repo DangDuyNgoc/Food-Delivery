@@ -1,12 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
-import { Table, Tag } from "antd";
+import { Table, Tag, Pagination } from "antd"; 
 import moment from "moment";
-import "antd/dist/reset.css"; 
+import "antd/dist/reset.css";
+
 const MyOrder = () => {
   const { url, token } = useContext(StoreContext);
   const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(4); 
 
   const fetchOrders = async () => {
     const response = await axios.post(
@@ -18,7 +21,12 @@ const MyOrder = () => {
         },
       }
     );
-    setData(response.data.data);
+
+    const sortedData = response.data.data.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    setData(sortedData);
   };
 
   useEffect(() => {
@@ -69,39 +77,54 @@ const MyOrder = () => {
     return acc;
   }, {});
 
+  const currentOrders = Object.keys(groupedOrders).slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="my-order container mx-auto p-4">
       <h2 className="text-xl font-bold mb-4">My Orders</h2>
-
-      {Object.keys(groupedOrders).map((date) => (
-        <div key={date} className="mb-8">
-          <h3 className="text-lg font-bold mb-2">{`Orders for ${date}`}</h3>
-          {groupedOrders[date].map((order, orderIndex) => (
-            <div key={orderIndex} className="mb-4">
-              <Table
-                columns={columns}
-                dataSource={order.items.map((item, itemIndex) => ({
-                  key: `${orderIndex}-${itemIndex}`,
-                  ...item,
-                }))}
-                pagination={false}
-                className="shadow-md"
-              />
-              <div className="text-right">
-                <Tag
-                  color={order.status === "Completed" ? "green" : "orange"}
-                  className="mb-2"
-                >
-                  {order.status}
-                </Tag>
+      {data.length === 0 ? (
+        <p className="text-center text-gray-500">You dont have any orders yet</p>
+      ) : (
+        currentOrders.map((date) => (
+          <div key={date} className="mb-8">
+            <h3 className="text-lg font-bold mb-2">{`Orders for ${date}`}</h3>
+            {groupedOrders[date].map((order, orderIndex) => (
+              <div key={orderIndex} className="mb-4">
+                <Table
+                  columns={columns}
+                  dataSource={order.items.map((item, itemIndex) => ({
+                    key: `${orderIndex}-${itemIndex}`,
+                    ...item,
+                  }))}
+                  pagination={false}
+                  className="shadow-md"
+                />
+                <div className="text-right">
+                  <Tag
+                    color={order.status === "Completed" ? "green" : "orange"}
+                    className="mb-2"
+                  >
+                    {order.status}
+                  </Tag>
+                </div>
+                <div className="text-right font-bold">
+                  Total Amount: {order.amount}.000đ
+                </div>
               </div>
-              <div className="text-right font-bold">
-                Total Amount: {order.amount}.000đ
-              </div>
-            </div>
-          ))}
-        </div>
-      ))}
+            ))}
+          </div>
+        ))
+      )}
+      <Pagination
+        current={currentPage}
+        pageSize={itemsPerPage}
+        total={Object.keys(groupedOrders).length}
+        onChange={(page) => setCurrentPage(page)}
+        className="mt-4"
+      />
     </div>
   );
 };

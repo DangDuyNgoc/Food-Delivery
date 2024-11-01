@@ -3,11 +3,27 @@ import { useContext } from "react";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import "./FoodItem.css";
+import toast from "react-hot-toast";
 
 const FoodItem = ({ id, name, price, description, image }) => {
-  console.log( "id item: ",id)
-  const { cartItems, addToCart, removeCartItem, url } =
+  const { cartItems, addToCart, removeCartItem, url, token } =
     useContext(StoreContext);
+
+  const handleAddToCart = () => {
+    if (token) {
+      addToCart(id);
+    } else {
+      toast.error("Please log in to add items to the cart.");
+    }
+  };
+
+  const handleRemoveFromCart = () => {
+    if (token) {
+      removeCartItem(id);
+    } else {
+      toast.error("Please log in to remove items from the cart.");
+    }
+  };
 
   return (
     <div className="food-item">
@@ -17,7 +33,7 @@ const FoodItem = ({ id, name, price, description, image }) => {
           <img
             src={assets.add_icon_white}
             alt=""
-            onClick={() => addToCart(id)}
+            onClick={handleAddToCart}
             className="add"
           />
         ) : (
@@ -25,7 +41,7 @@ const FoodItem = ({ id, name, price, description, image }) => {
             <img
               src={assets.remove_icon_red}
               alt=""
-              onClick={() => removeCartItem(id)}
+              onClick={handleRemoveFromCart}
             />
             <p>{cartItems[id]}</p>
             <img src={assets.add_icon_green} onClick={() => addToCart(id)} />
