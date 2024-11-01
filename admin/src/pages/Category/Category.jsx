@@ -10,7 +10,7 @@ const Category = ({ url }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null); // Thêm state để xem trước hình ảnh
+  const [imagePreview, setImagePreview] = useState(null); 
 
   const token = localStorage.getItem("token");
 

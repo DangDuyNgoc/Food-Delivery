@@ -14,16 +14,14 @@ const StoreContextProvider = (props) => {
   const [categories, setCategories] = useState([]);
 
   const addToCart = async (itemId) => {
-    console.log(itemId);
-    if (!cartItems[itemId]) {
-      setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
-    } else {
-      setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    }
+    setCartItems((prev) => ({
+      ...prev,
+      [itemId]: (prev[itemId] || 0) + 1,
+    }));
     if (token) {
       await axios.post(
-        url + "/api/cart/add",
-        { itemId },
+        url + `/api/cart/add/${itemId}`,
+        {},
         {
           headers: {
             "Content-Type": "application/json",
@@ -35,20 +33,41 @@ const StoreContextProvider = (props) => {
   };
 
   const removeCartItem = async (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
+    setCartItems((prev) => {
+      const updatedCart = { ...prev };
+      if (updatedCart[itemId] > 1) {
+        updatedCart[itemId] -= 1;
+      } else {
+        delete updatedCart[itemId];
+      }
+      return updatedCart;
+    });
     if (token) {
-      await axios.post(
-        url + "/api/cart/remove",
-        { itemId },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.delete(url + `/api/cart/remove/${itemId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
     }
     toast.success("Item has been removed.");
+  };
+
+  const clearAllCartItem = async () => {
+    try {
+      await axios.delete(`${url}/api/cart/clear`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCartItems({});
+      toast.success("Item has been clear all.");
+    } catch (error) {
+      console.error("Error clearing all items:", error);
+      toast.error("Failed to clear cart.");
+    }
   };
 
   const getTotalCart = () => {
@@ -82,16 +101,12 @@ const StoreContextProvider = (props) => {
 
   const loadCartData = async (token) => {
     try {
-      const response = await axios.post(
-        url + "/api/cart/get",
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(url + "/api/cart/get", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setCartItems(response.data.cartData);
     } catch (error) {
       console.error("Error loading cart data", error);
@@ -124,6 +139,7 @@ const StoreContextProvider = (props) => {
     setCartItems,
     addToCart,
     removeCartItem,
+    clearAllCartItem,
     getTotalCart,
     url,
     token,

@@ -5,8 +5,14 @@ import "./Cart.css";
 import { assets } from "../../assets/assets";
 
 const Cart = () => {
-  const { cartItems, food_list, removeCartItem, getTotalCart, url } =
-    useContext(StoreContext);
+  const {
+    cartItems,
+    food_list,
+    removeCartItem,
+    getTotalCart,
+    url,
+    clearAllCartItem,
+  } = useContext(StoreContext);
 
   const itemsInCart = food_list.filter((item) => cartItems[item._id] > 0);
 
@@ -23,6 +29,12 @@ const Cart = () => {
             <p>Quantity</p>
             <p>Total</p>
             <p>Remove</p>
+            <button
+              className="ml-2 py-1 text-white bg-red-500 rounded hover:bg-red-600"
+              onClick={clearAllCartItem}
+            >
+              CLEAR ALL
+            </button>
           </div>
           <br />
           <hr />
