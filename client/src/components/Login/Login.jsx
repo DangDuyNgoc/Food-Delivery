@@ -65,7 +65,6 @@ const Login = ({ setShowLogin }) => {
       }
     } catch (error) {
       console.log(error);
-      // toast.error("Something went wrong!");
     }
   };
 
@@ -95,7 +94,7 @@ const Login = ({ setShowLogin }) => {
           <input
             name="email"
             value={data.email}
-            type="email"
+            type="text"
             onChange={onChangeHandler}
             placeholder="Your email"
           />

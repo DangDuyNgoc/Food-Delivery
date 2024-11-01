@@ -3,8 +3,7 @@ import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
 import { Table, Tag } from "antd";
 import moment from "moment";
-import 'antd/dist/reset.css'; // reset Antd default styles
-
+import "antd/dist/reset.css"; 
 const MyOrder = () => {
   const { url, token } = useContext(StoreContext);
   const [data, setData] = useState([]);
@@ -58,16 +57,6 @@ const MyOrder = () => {
       key: "price",
       render: (price) => `${price}.000đ`,
     },
-    {
-      title: "Order Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <Tag color={status === "Completed" ? "green" : "orange"}>
-          {status}
-        </Tag>
-      ),
-    },
   ];
 
   // Group orders by date
@@ -88,22 +77,28 @@ const MyOrder = () => {
         <div key={date} className="mb-8">
           <h3 className="text-lg font-bold mb-2">{`Orders for ${date}`}</h3>
           {groupedOrders[date].map((order, orderIndex) => (
-            <Table
-              key={orderIndex}
-              columns={columns}
-              dataSource={order.items.map((item, itemIndex) => ({
-                key: `${orderIndex}-${itemIndex}`,
-                ...item,
-                status: order.status,
-              }))}
-              pagination={false}
-              className="shadow-md mb-4"
-              footer={() => (
-                <div className="text-right font-bold">
-                  Total Amount: {order.amount}.000đ
-                </div>
-              )}
-            />
+            <div key={orderIndex} className="mb-4">
+              <Table
+                columns={columns}
+                dataSource={order.items.map((item, itemIndex) => ({
+                  key: `${orderIndex}-${itemIndex}`,
+                  ...item,
+                }))}
+                pagination={false}
+                className="shadow-md"
+              />
+              <div className="text-right">
+                <Tag
+                  color={order.status === "Completed" ? "green" : "orange"}
+                  className="mb-2"
+                >
+                  {order.status}
+                </Tag>
+              </div>
+              <div className="text-right font-bold">
+                Total Amount: {order.amount}.000đ
+              </div>
+            </div>
           ))}
         </div>
       ))}

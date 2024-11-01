@@ -17,7 +17,6 @@ const Add = ({ url }) => {
   });
 
   const token = localStorage.getItem("token");
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,53 +26,63 @@ const Add = ({ url }) => {
           `${url}/api/category/get-list-category`
         );
         setCategories(response.data.categories);
+        setData((prevData) => ({
+          ...prevData,
+          category: response.data.categories[0]?._id || "",
+        }));
       } catch (error) {
         console.error("Failed to fetch categories:", error);
+        toast.error("Failed to load categories. Please try again.");
       }
     };
 
     fetchCategories();
-  }, []);
+  }, [url]);
 
   const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    setData((data) => ({ ...data, [name]: value }));
+    const { name, value } = event.target;
+    setData((prevData) => ({ ...prevData, [name]: value }));
   };
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", Number(data.price));
-    formData.append("category", data.category);
-    formData.append("image", image);
+    console.log("onSubmitHandler triggered");
 
-    const response = await axios.post(`${url}/api/food/add`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    if (!data.name || !data.price || !data.description || !data.category || !image) {
+      return toast.error("Please fill out all fields!");
+    }
 
-    if (response.data.success) {
-      setData({
-        name: "",
-        price: "",
-        description: "",
-        category: "Salad",
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", Number(data.price));
+      formData.append("category", data.category);
+      formData.append("image", image);
+
+      const response = await axios.post(`${url}/api/food/add`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      setImage(false);
-      toast.success(response.data.message);
-      navigate("/food");
-    } else {
-      toast.error(response.data.message);
+      if (response.data.success) {
+        setData({
+          name: "",
+          price: "",
+          description: "",
+          category: categories[0]?._id || "",
+        });
+        setImage(false);
+        toast.success(response.data.message);
+        navigate("/food");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Failed to add product:", error);
+      toast.error("An error occurred while adding the product.");
     }
   };
 
@@ -92,8 +101,8 @@ const Add = ({ url }) => {
             onChange={(e) => setImage(e.target.files[0])}
             type="file"
             id="image"
+            name="image"
             hidden
-            required
           />
         </div>
         <div className="add-product flex-col">

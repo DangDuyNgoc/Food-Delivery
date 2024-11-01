@@ -41,9 +41,8 @@ const Food = ({ url }) => {
       content: "This action cannot be undone.",
       onOk: async () => {
         try {
-          const response = await axios.post(
-            `${url}/api/food/remove`,
-            { id },
+          const response = await axios.delete(
+            `${url}/api/food/remove/${id}`,
             {
               headers: {
                 "Content-Type": "multipart/form-data",

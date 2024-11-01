@@ -28,28 +28,42 @@ const Login = ({ setShowLogin }) => {
 
   const onLogin = async (e) => {
     e.preventDefault();
-    let newUrl = url;
-    if (currentState === "Login") {
-      newUrl += "/api/user/login";
-    } else {
-      newUrl += "/api/user/register";
+
+    if (!data.email) {
+      return toast.error("Please enter your email!");
     }
 
-    const response = await axios.post(newUrl, data);
+    if (!data.password) {
+      return toast.error("Please enter your email!");
+    }
 
-    if (response.data.user?.role === 1) {
-      if (response.data.success) {
-        setToken(response.data.token);
-        setUser(response.data.user);
-        toast.success(response.data.message);
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        setShowLogin(false);
+    try {
+      let newUrl = url;
+      if (currentState === "Login") {
+        newUrl += "/api/user/login";
       } else {
-        alert(response.data.message);
+        newUrl += "/api/user/register";
       }
-    } else {
-      toast.error("You are not authorized to access this page");
+
+      const response = await axios.post(newUrl, data);
+
+      if (response.data.user?.role === 1) {
+        if (response.data.success) {
+          setToken(response.data.token);
+          setUser(response.data.user);
+          toast.success(response.data.message);
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          setShowLogin(false);
+        } else {
+          toast.error(response.data?.message);
+        }
+      } else {
+        toast.error("You are not authorized to access this page");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -59,12 +73,12 @@ const Login = ({ setShowLogin }) => {
         <div className="login-title">
           <h2>{currentState}</h2>
           <button
-          type="button"
-          className="close-button" 
-          onClick={() => setShowLogin(false)}
-        >
-          X
-        </button>
+            type="button"
+            className="close-button"
+            onClick={() => setShowLogin(false)}
+          >
+            X
+          </button>
           <img
             src={assets.cross_icon}
             alt=""
@@ -90,7 +104,6 @@ const Login = ({ setShowLogin }) => {
             type="email"
             onChange={onChangeHandler}
             placeholder="Your email"
-            required
           />
           <input
             name="password"
@@ -98,7 +111,6 @@ const Login = ({ setShowLogin }) => {
             type="password"
             onChange={onChangeHandler}
             placeholder="Your password"
-            required
           />
         </div>
         <button type="submit">
