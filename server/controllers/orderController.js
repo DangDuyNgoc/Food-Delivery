@@ -16,7 +16,6 @@ export const placeOrder = async (req, res) => {
     });
 
     await newOrder.save();
-    await userModel.findByIdAndUpdate(req.user._id, { cartData: {} });
 
     const line_items = req.body.items.map((item) => ({
       price_data: {
